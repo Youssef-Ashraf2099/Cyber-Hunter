@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+	<!-- ===== REQUIRED PERMISSIONS ===== -->
+	<uses-permission android:name="android.permission.CAMERA" />
+	<uses-permission android:name="android.permission.INTERNET" />
+	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+	<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+	<!-- ===== CAMERA FEATURES (for AR) ===== -->
+	<uses-feature android:name="android.hardware.camera" />
+	<uses-feature android:name="android.hardware.camera.autofocus" />
+	<uses-feature android:glEsVersion="0x00030000" android:required="true" />
+	<!-- OpenGL ES 3.0 for Vuforia -->
+
+	<!-- ===== VUFORIA TAGS ===== -->
+	<application>
+		<!-- Unity Activities (keep existing) -->
+		<activity android:name="com.unity3d.player.UnityPlayerActivity"
+                  android:theme="@style/UnityThemeSelector">
+			<intent-filter>
+				<action android:name="android.intent.action.MAIN" />
+				<category android:name="android.intent.category.LAUNCHER" />
+			</intent-filter>
+			<meta-data android:name="unityplayer.UnityActivity" android:value="true" />
+		</activity>
+
+		<!-- Vuforia-Specific Tags -->
+		<meta-data android:name="com.vuforia.API_KEY" android:value="AU96zzn/////AAABme7b5ytYUE8osozDX6QH7LljpEoPFAbckSkJ29ucfG9RKYokU1mVu29GlJd2RCBd8ZkajtmlDfsX5/bh/F5J420NaVHYi4uY4bmB40ZbZyqV1fS2Bztk+PqveYUw33FyaoDSRa4u8aTDkpbIbjjg3V51hsZeSDj5g6MYM5TtmOi8JPrvNhGvfhTLun/GkiMvxiovuUI67qG8n6/kI4tiPQbeTH4oV3vBCZYgMty2IKeXqVSzQztDKKIHSk2D55xRUlJ0jZkqdNIvd/yAZw5k40gqSLYHCUE4tlt+caPiArYucRHrtAWIMDff4bRKmatChDSubX5oYksEQkksVhSb9xJkWD26F//9TSSAAzrXKg98" />
+		<!-- Replace with your key! -->
+		<activity android:name="com.vuforia.VuforiaApplication" />
+
+		<!-- Optional: Enable ARCore if using Ground Plane -->
+		<meta-data android:name="com.google.ar.core" android:value="optional" />
+	</application>
+
+</manifest>
