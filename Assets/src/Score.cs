@@ -1,11 +1,11 @@
 using UnityEngine;
-using UnityEngine.UI; // Required for UI components
+using TMPro; // Use TextMeshPro instead of UnityEngine.UI
 
 public class Score : MonoBehaviour
 {
-    public Text scoreText; // Reference to the UI Text component
+    public TextMeshProUGUI scoreText; // Reference to the TMP UI component
     private int score = 0; // Variable to store the score
-                           // In Score.cs
+
     public int CurrentScore => score;
 
     void Start()
