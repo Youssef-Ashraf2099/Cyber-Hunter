@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using System.Collections.Generic;
 using Unity.VisualScripting;
-
+using UnityEngine.Networking;
 public class TapHandler : MonoBehaviour
 {
     [System.Serializable]
@@ -154,6 +154,38 @@ public class TapHandler : MonoBehaviour
             }
         }
     }
+
+    private void SendAnswerToGoogleForm(string entryID, string answer)
+    {
+        StartCoroutine(PostToGoogleForm(entryID, answer));
+    }
+
+    private IEnumerator PostToGoogleForm(string entryID, string answer)
+    {
+        string formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSebFjYhjmr6Uefx95lP0z3NY_nGIYqBkwScwqUIwSIyKT0jOw/formResponse";
+        WWWForm form = new WWWForm();
+
+        if (string.IsNullOrEmpty(entryID))
+        {
+            Debug.LogError("Google Form Entry ID is missing!");
+            yield break;
+        }
+
+        form.AddField(entryID, answer);
+
+        UnityWebRequest www = UnityWebRequest.Post(formURL, form);
+        yield return www.SendWebRequest();
+
+        if (www.result != UnityWebRequest.Result.Success)
+        {
+            Debug.LogError("Form submission failed: " + www.error);
+        }
+        else
+        {
+            Debug.Log("Form submitted successfully.");
+        }
+    }
+
     private void ProcessPrefabTap(InteractivePrefab prefabData)
     {
         if (isQuestionnaireActive || currentActivePrefab != null) return;
@@ -226,6 +258,9 @@ public class TapHandler : MonoBehaviour
         Time.timeScale = 1;
         isQuestionnaireActive = false;
 
+
+
+        SendAnswerToGoogleForm(currentActivePrefab.questionData.googleFormEntryID, playerAnswer);
         // Notify GameEndManager FIRST (before destroying prefab)
         if (gameEndManager != null)
         {
@@ -242,10 +277,11 @@ public class TapHandler : MonoBehaviour
         StartCoroutine(DestroyPrefabAfterSound(currentActivePrefab));
 
         currentActivePrefab = null;
+
     }
 
 
-    
+
     // Helper to get score from Score manager (add a public getter in Score.cs)
     private int GetScoreFromScoreManager()
     {
@@ -272,10 +308,14 @@ public class TapHandler : MonoBehaviour
     }
 }
 
+
 [System.Serializable]
 public class Question
 {
     public string questionText;
     public string correctAnswer;
     public string[] options;
+
+    [Tooltip("Google Form Entry ID for this question (e.g., entry.1234567890)")]
+    public string googleFormEntryID;
 }
