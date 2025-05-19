@@ -1,4 +1,0 @@
-repository "Cyber-Hunter/Cyber-Hunter@11270141813386@cloud"
-  path "/"
-    br "/main"
-    co "/main"
