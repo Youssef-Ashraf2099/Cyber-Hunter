@@ -155,36 +155,36 @@ public class TapHandler : MonoBehaviour
         }
     }
 
-    private void SendAnswerToGoogleForm(string entryID, string answer)
-    {
-        StartCoroutine(PostToGoogleForm(entryID, answer));
-    }
+    //private void SendAnswerToGoogleForm(string entryID, string answer)
+    //{
+    //    StartCoroutine(PostToGoogleForm(entryID, answer));
+    //}
 
-    private IEnumerator PostToGoogleForm(string entryID, string answer)
-    {
-        string formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSebFjYhjmr6Uefx95lP0z3NY_nGIYqBkwScwqUIwSIyKT0jOw/formResponse";
-        WWWForm form = new WWWForm();
+    //private IEnumerator PostToGoogleForm(string entryID, string answer)
+    //{
+    //    string formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSebFjYhjmr6Uefx95lP0z3NY_nGIYqBkwScwqUIwSIyKT0jOw/formResponse";
+    //    WWWForm form = new WWWForm();
 
-        if (string.IsNullOrEmpty(entryID))
-        {
-            Debug.LogError("Google Form Entry ID is missing!");
-            yield break;
-        }
+    //    if (string.IsNullOrEmpty(entryID))
+    //    {
+    //        Debug.LogError("Google Form Entry ID is missing!");
+    //        yield break;
+    //    }
 
-        form.AddField(entryID, answer);
+    //    form.AddField(entryID, answer);
 
-        UnityWebRequest www = UnityWebRequest.Post(formURL, form);
-        yield return www.SendWebRequest();
+    //    UnityWebRequest www = UnityWebRequest.Post(formURL, form);
+    //    yield return www.SendWebRequest();
 
-        if (www.result != UnityWebRequest.Result.Success)
-        {
-            Debug.LogError("Form submission failed: " + www.error);
-        }
-        else
-        {
-            Debug.Log("Form submitted successfully.");
-        }
-    }
+    //    if (www.result != UnityWebRequest.Result.Success)
+    //    {
+    //        Debug.LogError("Form submission failed: " + www.error);
+    //    }
+    //    else
+    //    {
+    //        Debug.Log("Form submitted successfully.");
+    //    }
+    //}
 
     private void ProcessPrefabTap(InteractivePrefab prefabData)
     {
@@ -260,7 +260,7 @@ public class TapHandler : MonoBehaviour
 
 
 
-        SendAnswerToGoogleForm(currentActivePrefab.questionData.googleFormEntryID, playerAnswer);
+       // SendAnswerToGoogleForm(currentActivePrefab.questionData.googleFormEntryID, playerAnswer);
         // Notify GameEndManager FIRST (before destroying prefab)
         if (gameEndManager != null)
         {
