@@ -161,36 +161,7 @@ public class TapHandler : MonoBehaviour
         }
     }
 
-    //private void SendAnswerToGoogleForm(string entryID, string answer)
-    //{
-    //    StartCoroutine(PostToGoogleForm(entryID, answer));
-    //}
-
-    //private IEnumerator PostToGoogleForm(string entryID, string answer)
-    //{
-    //    string formURL = "https://docs.google.com/forms/u/0/d/e/1FAIpQLSebFjYhjmr6Uefx95lP0z3NY_nGIYqBkwScwqUIwSIyKT0jOw/formResponse";
-    //    WWWForm form = new WWWForm();
-
-    //    if (string.IsNullOrEmpty(entryID))
-    //    {
-    //        Debug.LogError("Google Form Entry ID is missing!");
-    //        yield break;
-    //    }
-
-    //    form.AddField(entryID, answer);
-
-    //    UnityWebRequest www = UnityWebRequest.Post(formURL, form);
-    //    yield return www.SendWebRequest();
-
-    //    if (www.result != UnityWebRequest.Result.Success)
-    //    {
-    //        Debug.LogError("Form submission failed: " + www.error);
-    //    }
-    //    else
-    //    {
-    //        Debug.Log("Form submitted successfully.");
-    //    }
-    //}
+    
 
     private void ProcessPrefabTap(InteractivePrefab prefabData)
     {
@@ -260,32 +231,7 @@ public class TapHandler : MonoBehaviour
             return;
         }
 
-        // Check if the answer is in the options (case-insensitive, trimmed)
-        bool foundInOptions = false;
-        if (currentActivePrefab.questionData.options != null)
-        {
-            foreach (var option in currentActivePrefab.questionData.options)
-            {
-                if (string.Equals(playerAnswer, option?.Trim(), System.StringComparison.OrdinalIgnoreCase))
-                {
-                    foundInOptions = true;
-                    break;
-                }
-            }
-        }
-
-        if (!foundInOptions)
-        {
-            // Play wrong answer sound if available
-            if (audioSource != null && currentActivePrefab.wrongAnswerSound != null)
-            {
-                audioSource.PlayOneShot(currentActivePrefab.wrongAnswerSound);
-            }
-            Debug.Log("Answer not found in options.");
-            return; // Do not proceed, keep questionnaire open
-        }
-
-        // Check if the answer is correct (case-insensitive, trimmed)
+        // Only check if the answer is correct (case-insensitive, trimmed)
         bool isCorrect = string.Equals(
             playerAnswer,
             currentActivePrefab.questionData.correctAnswer?.Trim(),
@@ -325,6 +271,7 @@ public class TapHandler : MonoBehaviour
 
         currentActivePrefab = null;
     }
+
 
 
 
