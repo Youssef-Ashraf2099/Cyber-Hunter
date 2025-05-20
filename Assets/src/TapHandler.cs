@@ -27,7 +27,13 @@ public class TapHandler : MonoBehaviour
 
         [Tooltip("Question data including correct answer")]
         public Question questionData;
+
+        [Tooltip("Sound to play when the answer is wrong")]
+        public AudioClip wrongAnswerSound;
     }
+
+    
+
 
     [Header("Configuration")]
     [Tooltip("List of interactive prefabs and their settings")]
@@ -254,13 +260,54 @@ public class TapHandler : MonoBehaviour
             return;
         }
 
+        // Check if the answer is in the options (case-insensitive, trimmed)
+        bool foundInOptions = false;
+        if (currentActivePrefab.questionData.options != null)
+        {
+            foreach (var option in currentActivePrefab.questionData.options)
+            {
+                if (string.Equals(playerAnswer, option?.Trim(), System.StringComparison.OrdinalIgnoreCase))
+                {
+                    foundInOptions = true;
+                    break;
+                }
+            }
+        }
+
+        if (!foundInOptions)
+        {
+            // Play wrong answer sound if available
+            if (audioSource != null && currentActivePrefab.wrongAnswerSound != null)
+            {
+                audioSource.PlayOneShot(currentActivePrefab.wrongAnswerSound);
+            }
+            Debug.Log("Answer not found in options.");
+            return; // Do not proceed, keep questionnaire open
+        }
+
+        // Check if the answer is correct (case-insensitive, trimmed)
+        bool isCorrect = string.Equals(
+            playerAnswer,
+            currentActivePrefab.questionData.correctAnswer?.Trim(),
+            System.StringComparison.OrdinalIgnoreCase
+        );
+
+        if (!isCorrect)
+        {
+            // Play wrong answer sound if available
+            if (audioSource != null && currentActivePrefab.wrongAnswerSound != null)
+            {
+                audioSource.PlayOneShot(currentActivePrefab.wrongAnswerSound);
+            }
+            Debug.Log("Wrong answer submitted.");
+            return; // Do not proceed, keep questionnaire open
+        }
+
+        // Correct answer: proceed as before
         currentActivePrefab.questionnairePanel.SetActive(false);
         Time.timeScale = 1;
         isQuestionnaireActive = false;
 
-
-
-       // SendAnswerToGoogleForm(currentActivePrefab.questionData.googleFormEntryID, playerAnswer);
         // Notify GameEndManager FIRST (before destroying prefab)
         if (gameEndManager != null)
         {
@@ -277,7 +324,6 @@ public class TapHandler : MonoBehaviour
         StartCoroutine(DestroyPrefabAfterSound(currentActivePrefab));
 
         currentActivePrefab = null;
-
     }
 
 
