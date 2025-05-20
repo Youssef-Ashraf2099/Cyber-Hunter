@@ -1,5 +1,8 @@
 using UnityEngine;
+
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
 using UnityEngine.Windows.Speech;
+#endif
 
 public class VoiceHintManager : MonoBehaviour
 {
@@ -12,7 +15,9 @@ public class VoiceHintManager : MonoBehaviour
     [Tooltip("Pre-recorded audio hints about treasure locations")]
     public AudioClip[] hintClips;
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
     private KeywordRecognizer keywordRecognizer;
+#endif
     private bool isRecognizerActive = true;
 
     void Start()
@@ -28,9 +33,14 @@ public class VoiceHintManager : MonoBehaviour
             }
         }
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         InitializeVoiceRecognizer();
+#else
+        Debug.LogWarning("Voice recognition is only supported on Windows in this implementation.");
+#endif
     }
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
     private void InitializeVoiceRecognizer()
     {
         if (keywords == null || keywords.Length == 0)
@@ -52,6 +62,7 @@ public class VoiceHintManager : MonoBehaviour
         Debug.Log($"Voice command detected: {args.text}");
         GiveHint();
     }
+#endif
 
     public void GiveHint()
     {
@@ -70,15 +81,20 @@ public class VoiceHintManager : MonoBehaviour
 
     public void ToggleVoiceRecognition(bool state)
     {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         isRecognizerActive = state;
-        if (state && !keywordRecognizer.IsRunning)
+        if (state && keywordRecognizer != null && !keywordRecognizer.IsRunning)
             keywordRecognizer.Start();
-        else if (!state && keywordRecognizer.IsRunning)
+        else if (!state && keywordRecognizer != null && keywordRecognizer.IsRunning)
             keywordRecognizer.Stop();
+#else
+        Debug.LogWarning("Voice recognition toggle is not supported on this platform.");
+#endif
     }
 
     void OnDestroy()
     {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (keywordRecognizer != null)
         {
             keywordRecognizer.OnPhraseRecognized -= OnPhraseRecognized;
@@ -86,11 +102,13 @@ public class VoiceHintManager : MonoBehaviour
                 keywordRecognizer.Stop();
             keywordRecognizer.Dispose();
         }
+#endif
     }
 
     void OnApplicationPause(bool pauseStatus)
     {
-        // Pause recognition when app loses focus
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         ToggleVoiceRecognition(!pauseStatus);
+#endif
     }
 }
