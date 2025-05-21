@@ -1,32 +1,33 @@
+#if UNITY_STANDALONE_WIN || UNITY_WSA
 using UnityEngine;
-#if UNITY_ANDROID
-using UnityEngine.Android;
 using UnityEngine.Windows.Speech;
-#endif
 
-[RequireComponent(typeof(AudioSource))]
 public class VoiceHintManager : MonoBehaviour
 {
+    [Tooltip("Voice commands that trigger hints")]
     [SerializeField] private string[] keywords = { "hint", "help" };
+
+    [Tooltip("AudioSource to play hint clips")]
     [SerializeField] private AudioSource audioSource;
+
+    [Tooltip("Pre-recorded audio hints about treasure locations")]
     public AudioClip[] hintClips;
 
     private KeywordRecognizer keywordRecognizer;
+    private bool isRecognizerActive = true;
 
     void Start()
     {
+        // Set up audio source if not assigned
         if (audioSource == null)
-            audioSource = GetComponent<AudioSource>();
-
-#if UNITY_ANDROID
-        // Check and request microphone permission
-        if (!Permission.HasUserAuthorizedPermission(Permission.Microphone))
         {
-            Permission.RequestUserPermission(Permission.Microphone);
-            Invoke(nameof(InitializeVoiceRecognizer), 1f); // Retry after delay
-            return;
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+                Debug.LogWarning("No AudioSource found - created one automatically.");
+            }
         }
-#endif
 
         InitializeVoiceRecognizer();
     }
@@ -35,24 +36,25 @@ public class VoiceHintManager : MonoBehaviour
     {
         if (keywords == null || keywords.Length == 0)
         {
-            Debug.LogError("No keywords assigned in Inspector!");
+            Debug.LogError("No keywords assigned for voice recognition!");
             return;
         }
 
-        try
-        {
-            keywordRecognizer = new KeywordRecognizer(keywords, ConfidenceLevel.Low);
-            keywordRecognizer.OnPhraseRecognized += OnPhraseRecognized;
-            keywordRecognizer.Start();
-            Debug.Log("Voice recognizer started successfully.");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError("Voice recognizer failed: " + e.Message);
-        }
+        keywordRecognizer = new KeywordRecognizer(keywords, ConfidenceLevel.Low);
+        keywordRecognizer.OnPhraseRecognized += OnPhraseRecognized;
+        keywordRecognizer.Start();
+        isRecognizerActive = true;
     }
 
     private void OnPhraseRecognized(PhraseRecognizedEventArgs args)
+    {
+        if (!isRecognizerActive) return;
+
+        Debug.Log($"Voice command detected: {args.text}");
+        GiveHint();
+    }
+
+    public void GiveHint()
     {
         if (hintClips == null || hintClips.Length == 0)
         {
@@ -63,23 +65,34 @@ public class VoiceHintManager : MonoBehaviour
         if (audioSource.isPlaying)
             audioSource.Stop();
 
-        audioSource.PlayOneShot(hintClips[Random.Range(0, hintClips.Length)]);
+        int randomIndex = Random.Range(0, hintClips.Length);
+        audioSource.PlayOneShot(hintClips[randomIndex]);
     }
 
-    void OnApplicationPause(bool pauseStatus)
+    public void ToggleVoiceRecognition(bool state)
     {
-        if (keywordRecognizer == null) return;
-
-        if (pauseStatus) keywordRecognizer.Stop();
-        else if (!keywordRecognizer.IsRunning) keywordRecognizer.Start();
+        isRecognizerActive = state;
+        if (state && !keywordRecognizer.IsRunning)
+            keywordRecognizer.Start();
+        else if (!state && keywordRecognizer.IsRunning)
+            keywordRecognizer.Stop();
     }
 
     void OnDestroy()
     {
         if (keywordRecognizer != null)
         {
-            keywordRecognizer.Stop();
+            keywordRecognizer.OnPhraseRecognized -= OnPhraseRecognized;
+            if (keywordRecognizer.IsRunning)
+                keywordRecognizer.Stop();
             keywordRecognizer.Dispose();
         }
     }
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        // Pause recognition when app loses focus
+        ToggleVoiceRecognition(!pauseStatus);
+    }
 }
+#endif
