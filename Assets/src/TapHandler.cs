@@ -53,7 +53,7 @@ public class TapHandler : MonoBehaviour
     [Header("Game End")]
     public GameEndManager gameEndManager;
 
-    public AICompanionBehavior aiCompanion; // Assign in Inspector
+   
 
 
     void Start()

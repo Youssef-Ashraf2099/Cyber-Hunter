@@ -72,11 +72,22 @@ public class VoiceHintManager : MonoBehaviour
     public void ToggleVoiceRecognition(bool state)
     {
         isRecognizerActive = state;
+        if (keywordRecognizer == null)
+            return;
+
         if (state && !keywordRecognizer.IsRunning)
             keywordRecognizer.Start();
         else if (!state && keywordRecognizer.IsRunning)
             keywordRecognizer.Stop();
     }
+
+    void OnApplicationPause(bool pauseStatus)
+    {
+        // Pause recognition when app loses focus
+        if (keywordRecognizer != null)
+            ToggleVoiceRecognition(!pauseStatus);
+    }
+
 
     void OnDestroy()
     {
@@ -89,10 +100,10 @@ public class VoiceHintManager : MonoBehaviour
         }
     }
 
-    void OnApplicationPause(bool pauseStatus)
-    {
-        // Pause recognition when app loses focus
-        ToggleVoiceRecognition(!pauseStatus);
-    }
+    //void OnApplicationPause(bool pauseStatus)
+    //{
+    //    // Pause recognition when app loses focus
+    //    ToggleVoiceRecognition(!pauseStatus);
+    //}
 }
 #endif
